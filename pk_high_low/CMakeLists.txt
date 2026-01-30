@@ -30,6 +30,9 @@ add_executable(${EXECUTABLE_NAME} ${SOURCES})
 # Add the include directories for pk_proyects/pk_high_low/include/
 target_include_directories(${EXECUTABLE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# Add the include directories for sdl_utils/include/
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/sdl_utils/include)
+
 # Link third-party libraries
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_ttf)

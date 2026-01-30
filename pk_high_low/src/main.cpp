@@ -7,10 +7,17 @@
 #include <models/poke_specie.hpp>
 #include <models/pokedex.hpp>
 
-void play_high_low(const aff::pk_high_low::models::pokedex& dex);
+#include <models/game_model.hpp>
+#include <views/console_view.hpp>
+#include <controller/game_choice.hpp>
+#include <controller/game_controller.hpp>
+
+// void play_high_low(const aff::pk_high_low::models::pokedex& dex);
 
 int main() {
     using namespace aff::pk_high_low::models;
+    using namespace aff::pk_high_low::views;
+    using namespace aff::pk_high_low::controller;
     using std::filesystem::path;
     using std::vector;
 
@@ -21,28 +28,104 @@ int main() {
     // Parse each entry
     const pokedex dex { pokedex::from_file(dex_path) };
 
-    std::cout << "Pokedex loaded with " << dex.size() << " species.\n";
+    assert(dex.size() > static_cast<pokedex::index_t>(2) && 
+           "Pokedex should not be empty");
 
-    for (int i = 0; i < 5; ++i) {
-        const poke_specie& specie = dex.at(i);
-        std::cout << "Specie " << i << ": (" << specie.id << ") " << specie.name 
-                    << (specie.is_alt_form() ? 
-                            std::string(" (Alt Form: " + specie.alt_name + ")") : 
-                            "") 
-                    << " (Type 1: " << specie.type_1 
-                    << ", Type 2: " << specie.type_2 << ")"
-                    << " (HP: " << specie.hp 
-                    << ", Atk: " << specie.atk
-                    << ", Def: " << specie.def
-                    << ", Sp.Atk: " << specie.sp_atk
-                    << ", Sp.Def: " << specie.sp_def
-                    << ", Speed: " << specie.speed << ")\n";
-    }
+    // Make utils for game model
+    using item_t = std::pair<poke_specie, bool>; // bool indicates if revealed
+    using item_score_t = poke_specie::poke_stat_t;
+    const auto get_bts = [](const item_t& item) -> item_score_t {
+        return item.first.bts();
+    };
 
-    play_high_low(dex);
+    // Things for item update
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist_dex(0, dex.size() - 1); // distribution in range [0, dex.size()-1]
+    std::array<pokedex::index_t, 2> previous_indices {
+        static_cast<pokedex::index_t>(-1),
+        static_cast<pokedex::index_t>(-1)
+    };
+    uint8_t replace_index = 0;
+    const auto next_different_index = [&](pokedex::index_t index1, pokedex::index_t index2) {
+        pokedex::index_t next_index = index1;
+        while (next_index == index1 || next_index == index2) {
+            next_index = dist_dex(rng);
+        }
+        return next_index;
+    };
+
+    // Item update function
+    const auto item_update = [&](std::pair<item_t, item_t>& items){
+
+        // Update visibility of current items
+        // Only if its not the first round
+        bool reveal = previous_indices[0] != static_cast<pokedex::index_t>(-1) && previous_indices[1] != static_cast<pokedex::index_t>(-1);
+        items.first.second = reveal;
+        items.second.second = reveal;
+
+        // Get a new specie for the current index
+        auto new_index = next_different_index(previous_indices[0], previous_indices[1]);
+        previous_indices[replace_index] = new_index;
+        if (replace_index == 0) {
+            items.second = item_t { dex.at(new_index), false };
+        } else { // replace_index == 1
+            items.first = item_t { dex.at(new_index), false };
+        }
+        replace_index ^= 1; // alternate between 0 and 1
+    };
+
+
+    const auto auto_win_ties = [](const std::pair<item_score_t, item_score_t>& item_scores, const aff::pk_high_low::controller::game_choice& choice) -> bool {
+        switch (choice) {
+            case aff::pk_high_low::controller::game_choice::FIRST_CHOSEN:
+                return item_scores.first >= item_scores.second;
+            case aff::pk_high_low::controller::game_choice::SECOND_CHOSEN:
+                return item_scores.second >= item_scores.first;
+            case aff::pk_high_low::controller::game_choice::TIE_CHOSEN:
+                return item_scores.first == item_scores.second;
+            default:
+                return false;
+        }
+    };
+
+    using hl_model_t = game_model<item_t, item_score_t, 
+                                decltype(get_bts), 
+                                decltype(item_update), 
+                                decltype(auto_win_ties)>;
+    auto hl_model = hl_model_t(
+        std::move(get_bts),
+        std::move(item_update),
+        std::move(auto_win_ties)
+    );
+
+    const auto print_pokemon = [](const hl_model_t::entity_type& item, 
+                            const hl_model_t::item_score_t& score, bool force_reveal) -> std::string {
+
+        const poke_specie& poke = item.first;
+        const bool revealed = item.second;  
+
+        return std::string (
+            poke.name + 
+            (poke.is_alt_form() ? " (" + poke.alt_name + ")" : "") + 
+            (revealed || force_reveal ? 
+                " (Total Base Stats: " + std::to_string(score) + ")" 
+                : "")
+        );
+    };
+
+    using view_t = console_view<hl_model_t, decltype(print_pokemon)>;
+    auto hl_view = view_t(std::move(print_pokemon));
+
+    auto hl_game = high_low_game(std::move(hl_model), std::move(hl_view));
+
+    hl_game.run();
+
+    // play_high_low(dex);
     return EXIT_SUCCESS;
 }
 
+/*
 void play_high_low(const aff::pk_high_low::models::pokedex& dex) {
     using namespace aff::pk_high_low::models;
     using std::cout;
@@ -78,7 +161,9 @@ void play_high_low(const aff::pk_high_low::models::pokedex& dex) {
 
     // Game logic things - Controller things to have
     const auto to_score = [](const item_t& item) -> score_t {
-        return item.first.bts();
+        //return item.first.bts();
+        //return item.first.speed;
+        return std::max(item.first.atk, item.first.sp_atk);
     };
 
     const auto refresh_model = [&](model_t& model, const repo_t& dex, replace_model_t& replace) {
@@ -198,3 +283,4 @@ void play_high_low(const aff::pk_high_low::models::pokedex& dex) {
     }
     return;    
 }
+*/
