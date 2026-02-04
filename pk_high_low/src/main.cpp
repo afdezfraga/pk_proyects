@@ -7,10 +7,16 @@
 #include <models/poke_specie.hpp>
 #include <models/pokedex.hpp>
 
-#include <models/game_model.hpp>
-#include <views/console_view.hpp>
 #include <controller/game_choice.hpp>
+
+#include <models/game_model.hpp>
+
+#include <views/console_view.hpp>
 #include <controller/game_controller.hpp>
+
+// SDL-based view/controller (new)
+#include <views/sdl_view.hpp>
+#include <controller/sdl_controller.hpp>
 
 // void play_high_low(const aff::pk_high_low::models::pokedex& dex);
 
@@ -114,12 +120,18 @@ int main() {
         );
     };
 
-    using view_t = console_view<hl_model_t, decltype(print_pokemon)>;
-    auto hl_view = view_t(std::move(print_pokemon));
+    // Original console view usage (commented out to keep code):
+    // using view_t = console_view<hl_model_t, decltype(print_pokemon)>;
+    // auto hl_view = view_t(std::move(print_pokemon));
+    // auto hl_game = high_low_game(std::move(hl_model), std::move(hl_view));
+    // hl_game.run();
 
-    auto hl_game = high_low_game(std::move(hl_model), std::move(hl_view));
-
-    hl_game.run();
+    // SDL view/controller usage
+    using sdl_view_t = aff::pk_high_low::views::sdl_view<hl_model_t>;
+    auto sdl_view_inst = sdl_view_t(assets_path);
+    auto sdl_ctrl = aff::pk_high_low::controller::sdl_controller<hl_model_t, decltype(sdl_view_inst)>(
+        std::move(hl_model), std::move(sdl_view_inst));
+    sdl_ctrl.run();
 
     // play_high_low(dex);
     return EXIT_SUCCESS;
