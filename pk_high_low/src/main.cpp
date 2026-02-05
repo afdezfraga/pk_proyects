@@ -28,7 +28,13 @@ int main() {
     using std::vector;
 
     // Dex file path
+#ifdef __EMSCRIPTEN__
+    // When running in the browser we expect assets to be preloaded into
+    // the virtual filesystem under '/assets' or the relative 'assets' path.
+    const path assets_path { "assets" };
+#else
     const path assets_path { std::filesystem::absolute(__FILE__).parent_path().parent_path() / "assets"};
+#endif
     const path dex_path  { assets_path / "dex.json" };
 
     // Parse each entry
@@ -42,6 +48,10 @@ int main() {
     using item_score_t = poke_specie::poke_stat_t;
     const auto get_bts = [](const item_t& item) -> item_score_t {
         return item.first.bts();
+    };
+
+    const auto get_bts_speed = [](const item_t& item) -> item_score_t {
+        return item.first.speed;
     };
 
     // Things for item update
@@ -66,7 +76,7 @@ int main() {
 
         // Update visibility of current items
         // Only if its not the first round
-        bool reveal = previous_indices[0] != static_cast<pokedex::index_t>(-1) && previous_indices[1] != static_cast<pokedex::index_t>(-1);
+        bool reveal = items.first.first.id != item_t().first.id && items.second.first.id != item_t().first.id;
         items.first.second = reveal;
         items.second.second = reveal;
 

@@ -27,7 +27,7 @@ concept Model =
         // Behaviors
         { m.update_for_new_round() } -> std::same_as<void>;
         { m.process_player_choice(std::declval<controller::game_choice>()) } -> std::convertible_to<bool>;
-
+        { m.reset() } -> std::same_as<void>;
     };
 
 }  // namespace aff::pk_high_low::models

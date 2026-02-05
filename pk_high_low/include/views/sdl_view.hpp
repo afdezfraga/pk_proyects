@@ -316,6 +316,24 @@ private:
         SDL_DestroyTexture(tex);
     }
 
+    // Render wrapped text centered horizontally at the given y position.
+    void render_text_centered(const std::string& txt, int y, int max_w) {
+       if (!font_) return;
+            SDL_Color col { 255, 255, 255, 255 };
+            SDL_Surface* surf = TTF_RenderUTF8_Blended_Wrapped(font_, txt.c_str(), col, max_w);
+            if (!surf) return;
+            SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer_, surf);
+            int surf_w = surf->w;
+            int surf_h = surf->h;
+            SDL_FreeSurface(surf);
+            if (!tex) return;
+            int win_w, win_h;
+            SDL_GetWindowSize(window_, &win_w, &win_h);
+            SDL_Rect dst { (win_w - surf_w) / 2, y, surf_w, surf_h };
+            SDL_RenderCopy(renderer_, tex, nullptr, &dst);
+            SDL_DestroyTexture(tex);
+    }
+
     void cleanup() {
         for (auto& kv : tex_cache_) {
             SDL_DestroyTexture(kv.second);
@@ -330,12 +348,14 @@ private:
     }
 
 public:
-    // Show a final message with an Exit button. Blocks until the user clicks the button or closes the window.
-    void wait_for_exit(const std::string& message) {
-        if (!renderer_ || !window_) return;
+    // Show a final message with Exit and Replay buttons. Returns true if the user
+    // chose to replay, false to exit. Blocks until a selection is made.
+    bool wait_for_exit(const std::string& message) {
+        if (!renderer_ || !window_) return false;
 
-        bool exit_requested = false;
-        while (!exit_requested) {
+        bool selection_made = false;
+        bool want_replay = false;
+        while (!selection_made) {
             // render background
             SDL_SetRenderDrawColor(renderer_, 10, 10, 10, 255);
             SDL_RenderClear(renderer_);
@@ -347,40 +367,54 @@ public:
             if (font_) {
                 int max_w = w - 40;
                 int msg_y = h/3;
-                render_text_at(message, 20, msg_y, max_w);
+                render_text_centered(message, msg_y, max_w);
             } else {
                 std::cout << message << std::endl;
             }
 
-            // draw exit button
-            SDL_Rect btn { w/2 - 60, h*2/3 - 20, 120, 40 };
-            SDL_SetRenderDrawColor(renderer_, 70, 120, 200, 255);
-            SDL_RenderFillRect(renderer_, &btn);
+            // draw Replay and Exit buttons
+            SDL_Rect replay_btn { w/2 - 160, h*2/3 - 20, 120, 40 };
+            SDL_Rect exit_btn   { w/2 + 40,  h*2/3 - 20, 120, 40 };
+
+            // Replay button
+            SDL_SetRenderDrawColor(renderer_, 70, 180, 90, 255);
+            SDL_RenderFillRect(renderer_, &replay_btn);
             if (font_) {
-                render_text_at(std::string("Exit"), btn.x + 20, btn.y + 10, btn.w - 40);
+                render_text_at(std::string("Replay"), replay_btn.x + 16, replay_btn.y + 10, replay_btn.w - 32);
+            }
+
+            // Exit button
+            SDL_SetRenderDrawColor(renderer_, 200, 90, 90, 255);
+            SDL_RenderFillRect(renderer_, &exit_btn);
+            if (font_) {
+                render_text_at(std::string("Exit"), exit_btn.x + 32, exit_btn.y + 10, exit_btn.w - 64);
             }
 
             SDL_RenderPresent(renderer_);
 
             SDL_Event event;
             while (SDL_WaitEvent(&event)) {
-                if (event.type == SDL_QUIT) { exit_requested = true; break; }
+                if (event.type == SDL_QUIT) { selection_made = true; want_replay = false; break; }
                 if (event.type == SDL_WINDOWEVENT) {
                     if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-                        // Break to outer loop which will re-render the message/button with new size
+                        // Break to outer loop which will re-render the message/buttons with new size
                         break;
                     }
                 }
                 if (event.type == SDL_KEYDOWN) {
-                    if (event.key.keysym.sym == SDLK_q || event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_ESCAPE) { exit_requested = true; break; }
+                    // 'r'/'enter' = replay, 'q'/'backspace'/'esc' = exit
+                    if (event.key.keysym.sym == SDLK_r || event.key.keysym.sym == SDLK_RETURN) { selection_made = true; want_replay = true; break; }
+                    if (event.key.keysym.sym == SDLK_q || event.key.keysym.sym == SDLK_BACKSPACE || event.key.keysym.sym == SDLK_ESCAPE) { selection_made = true; want_replay = false; break; }
                 }
                 if (event.type == SDL_MOUSEBUTTONDOWN) {
                     int mx = event.button.x;
                     int my = event.button.y;
-                    if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) { exit_requested = true; break; }
+                    if (mx >= replay_btn.x && mx <= replay_btn.x + replay_btn.w && my >= replay_btn.y && my <= replay_btn.y + replay_btn.h) { selection_made = true; want_replay = true; break; }
+                    if (mx >= exit_btn.x && mx <= exit_btn.x + exit_btn.w && my >= exit_btn.y && my <= exit_btn.y + exit_btn.h) { selection_made = true; want_replay = false; break; }
                 }
             }
         }
+        return want_replay;
     }
 
     // Block until any key is pressed or mouse is clicked (or window closed).

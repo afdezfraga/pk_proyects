@@ -58,6 +58,13 @@ public:
         return is_correct;
     }
 
+    void reset() {
+        current_score_ = 0;
+        current_round_ = 0;
+        current_items_ = items_t { item_t{}, item_t{} };
+        game_over_ = false;
+    }
+
     // Getters
     auto getScore() const -> score_t { return current_score_; }
     auto getRound() const -> round_t { return current_round_; }
