@@ -1,5 +1,6 @@
 bin/
 lib/
 build/
+wasm_build/
 data/
 .vscode/
