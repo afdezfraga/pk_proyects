@@ -25,6 +25,9 @@ set(EXECUTABLE_NAME pk_high_low)
 # Create the executable
 #####
 #####
+if (EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+endif()
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 
 # Add the include directories for pk_proyects/pk_high_low/include/
