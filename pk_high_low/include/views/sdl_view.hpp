@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include <unordered_map>
+#include <common_ui/window.hpp>
 
 namespace aff::pk_high_low::views {
 
@@ -27,6 +28,18 @@ public:
         : assets_path_(assets_path), width_(width), height_(height) {
         init_sdl();
         create_window();
+    }
+
+    // Construct from an existing window (uses its renderer). The underlying
+    // SDL init is still performed if required (SDLManager may have already
+    // initialized SDL/IMG/TTF).
+    explicit sdl_view(sdl_utils::common::Window& window, const std::filesystem::path& assets_path,
+                      int width = 1024, int height = 768)
+        : assets_path_(assets_path), width_(width), height_(height) {
+        // Ensure TTF/IMG are initialized (init_sdl checks WasInit)
+        init_sdl();
+        window_ = window.raw();
+        renderer_ = window.renderer();
     }
 
     ~sdl_view() {

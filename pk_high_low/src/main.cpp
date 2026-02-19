@@ -18,6 +18,10 @@
 #include <views/sdl_view.hpp>
 #include <controller/sdl_controller.hpp>
 
+#include <common_ui/sdl_manager.hpp>
+#include <common_ui/window.hpp>
+#include <controller/app_controller.hpp>
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -35,10 +39,26 @@ void test_sdl();
 
 int main() {
 
-    // test_sdl();
-    play_high_low_sdl();
+    using namespace aff::sdl_utils::common;
 
-    // play_high_low(dex);
+    // Determine assets path (works for Emscripten and native)
+#ifdef __EMSCRIPTEN__
+    const std::filesystem::path assets_path { "assets" };
+#else
+    const std::filesystem::path assets_path { std::filesystem::absolute(__FILE__).parent_path().parent_path() / "assets" };
+#endif
+
+    try {
+        // Initialize SDL subsystems via SDLManager and create a Window to pass to AppController
+        SDLManager manager(SDL_INIT_VIDEO);
+        Window window("PK High-Low", 1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+        aff::pk_high_low::controller::AppController app(window, assets_path);
+        return app.run();
+    } catch (const std::exception& ex) {
+        std::cerr << "Fatal error: " << ex.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
     return EXIT_SUCCESS;
 }
 
