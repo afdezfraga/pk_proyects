@@ -39,6 +39,10 @@ target_include_directories(${EXECUTABLE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/sdl_ut
 # Link third-party libraries
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_ttf)
+# Link sdl_utils helper library (provides RAII wrappers and helpers)
+if (BUILD_SDL_UTILS)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE sdl_utils)
+endif()
 
 
 # If testing is enabled, create the test executable
@@ -60,6 +64,11 @@ if(BUILD_TESTING)
     target_link_libraries(${EXECUTABLE_NAME}_test PRIVATE nlohmann_json::nlohmann_json)
     target_link_libraries(${EXECUTABLE_NAME}_test PRIVATE GTest::gtest_main)
     target_link_libraries(${EXECUTABLE_NAME}_test PRIVATE SDL2::SDL2-static SDL2_image::SDL2_image-static SDL2_ttf)
+
+    # Link sdl_utils helper library (provides RAII wrappers and helpers)
+    if (BUILD_SDL_UTILS)
+        target_link_libraries(${EXECUTABLE_NAME}_test PRIVATE sdl_utils)
+    endif()
 
     # Add tests
     include(GoogleTest)
