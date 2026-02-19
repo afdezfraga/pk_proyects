@@ -18,6 +18,9 @@ endif()
 # Build third party libraries
 option(BUILD_THIRD_PARTY "Build third party libraries" ON)
 
+# Build SDL utils library
+option(BUILD_SDL_UTILS "Build sdl_utils library" ON)
+
 # Build pk_high_low project
 option(BUILD_PK_HIGH_LOW "Build pk_high_low project" ON)
 
@@ -42,6 +45,10 @@ endif()
 # Subdirectories
 if (BUILD_THIRD_PARTY)
     add_subdirectory(third_party)
+endif()
+
+if (BUILD_SDL_UTILS)
+    add_subdirectory(sdl_utils)
 endif()
 
 if (BUILD_PK_HIGH_LOW)
