@@ -4,6 +4,8 @@
 #include <cmath>
 #include <common_ui/text.hpp>
 
+#include <controller/game_mode.hpp>
+
 using namespace aff::sdl_utils::common;
 using namespace aff::pk_high_low::controller;
 
@@ -21,9 +23,25 @@ GameStateController::GameStateController(Window& window, const std::filesystem::
     : window_(&window), assets_path_(assets_path), font_((find_font_game(assets_path_).empty() ? std::string() : find_font_game(assets_path_)), 24)
 {}
 
+void GameStateController::configure(const game_settings& settings)
+{
+    // no-op for dummy
+    mode_text_ = " Mode=" + std::to_string(static_cast<int>(settings.mode));
+    pokedex_text_ = " Pokedex=" + std::to_string(static_cast<int>(settings.pokedex));
+    difficulty_text_ = " Difficulty=" + std::to_string(static_cast<int>(settings.difficulty));
+    complete_mode_text_ = " Complete Mode=" + (settings.complete_mode 
+                                                ? std::string("ON") 
+                                                : std::string("OFF"));
+}
+
 void GameStateController::reset()
 {
     // nothing to reset for dummy
+}
+
+void GameStateController::restart()
+{
+    // nothing to restart for dummy
 }
 
 void GameStateController::tick(const SDL_Event* ev, AppContext& ctx, AppAPI& api)
@@ -47,6 +65,19 @@ void GameStateController::tick(const SDL_Event* ev, AppContext& ctx, AppAPI& api
 
     auto tex = Text::render(font_, "Dummy Game — press any key or click to end", SDL_Color{240,240,240,255}, ren);
     if (tex.raw()) { int tw=0,th=0; SDL_QueryTexture(tex.raw(), nullptr, nullptr, &tw, &th); SDL_Rect dst{20, 20, tw, th}; SDL_RenderCopy(ren, tex.raw(), nullptr, &dst); }
+
+    // Render game state text
+    auto mode_tex = Text::render(font_, mode_text_, SDL_Color{240,240,240,255}, ren);
+    if (mode_tex.raw()) { int tw=0,th=0; SDL_QueryTexture(mode_tex.raw(), nullptr, nullptr, &tw, &th); SDL_Rect dst{20, 60, tw, th}; SDL_RenderCopy(ren, mode_tex.raw(), nullptr, &dst); }
+
+    auto pokedex_tex = Text::render(font_, pokedex_text_, SDL_Color{240,240,240,255}, ren);
+    if (pokedex_tex.raw()) { int tw=0,th=0; SDL_QueryTexture(pokedex_tex.raw(), nullptr, nullptr, &tw, &th); SDL_Rect dst{20, 90, tw, th}; SDL_RenderCopy(ren, pokedex_tex.raw(), nullptr, &dst); }
+
+    auto difficulty_tex = Text::render(font_, difficulty_text_, SDL_Color{240,240,240,255}, ren);
+    if (difficulty_tex.raw()) { int tw=0,th=0; SDL_QueryTexture(difficulty_tex.raw(), nullptr, nullptr, &tw, &th); SDL_Rect dst{20, 120, tw, th}; SDL_RenderCopy(ren, difficulty_tex.raw(), nullptr, &dst); }
+
+    auto complete_mode_tex = Text::render(font_, complete_mode_text_, SDL_Color{240,240,240,255}, ren);
+    if (complete_mode_tex.raw()) { int tw=0,th=0; SDL_QueryTexture(complete_mode_tex.raw(), nullptr, nullptr, &tw,&th); SDL_Rect dst{20 ,150,tw ,th }; SDL_RenderCopy(ren ,complete_mode_tex.raw() ,nullptr ,&dst ); }
 
     window_->present();
 }

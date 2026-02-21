@@ -7,6 +7,7 @@
 
 #include <models/model_concepts.hpp>
 #include <controller/game_choice.hpp>
+#include <controller/hl_game_api.hpp>
 
 // --- Concepts ---
 
@@ -21,6 +22,13 @@ concept View =
         { v.show_round(m) } -> std::same_as<void>;
         { v.get_player_choice(m) } -> std::convertible_to<controller::game_choice>;
         { v.show_round_results(m, std::declval<bool>()) } -> std::same_as<void>;
+    };
+
+template <typename V, typename M>
+concept SDLGameView =
+    View<V, M> &&
+    requires(V& v, const M& m, const SDL_Event* ev, controller::HLGameContext& ctx, controller::HLGameAPI& api) {
+        { v.tick(ev, ctx, api, m) } -> std::same_as<void>;
     };
 
 }  // namespace aff::pk_high_low::views

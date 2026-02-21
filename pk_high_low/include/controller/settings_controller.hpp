@@ -15,6 +15,8 @@ public:
     SettingsController(aff::sdl_utils::common::Window& window, const std::filesystem::path& assets_path);
     void tick(const SDL_Event* ev, AppContext& ctx, AppAPI& api);
     void reset();
+    aff::pk_high_low::controller::game_settings& settings() { return settings_; }
+    const aff::pk_high_low::controller::game_settings& settings() const { return settings_; }
 
 private:
     aff::sdl_utils::common::Window* window_;

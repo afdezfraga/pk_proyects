@@ -2,9 +2,13 @@
 #define AFF_PK_PROJECTS_PK_HIGH_LOW_CONTROLLER_APP_CONTROLLER_HPP
 
 #include <filesystem>
+#include <optional>
+
 #include <common_ui/window.hpp>
 #include <controller/game_mode.hpp>
 #include <controller/controller_api.hpp>
+
+#include <controller/hl_game_controller.hpp>
 
 // Forward declare controllers
 namespace aff::pk_high_low::controller {
@@ -16,12 +20,15 @@ namespace aff::pk_high_low::controller {
 namespace aff::pk_high_low::controller {
 
 class AppController {
+public: 
+    // using GameControllerT = GameStateController; // alias for easy swapping of game controller implementations
+    using GameControllerT = HLGameController;
 private:
     enum class Screen { SETTINGS, GAME, END };
     struct MainLoopData {
         sdl_utils::common::Window* window;
         SettingsController* settings;
-        GameStateController* game;
+        GameControllerT* game;
         EndController* end;
         AppContext* ctx;
         AppAPI* api;

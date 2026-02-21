@@ -34,10 +34,11 @@ void AppController::process_pending(MainLoopData* d)
 
     if (d->pending && d->pending->has_value()) {
         switch (d->pending->value()) {
-            case Action::START_GAME: *d->cur = Screen::GAME; break;
+            case Action::START_GAME: d->game->configure(d->settings->settings()); *d->cur = Screen::GAME; break;
+            case Action::RESTART: d->game->configure(d->settings->settings()); *d->cur = Screen::GAME; break;
             case Action::SHOW_END: *d->cur = Screen::END; break;
-            case Action::RESTART: d->game->reset(); *d->cur = Screen::GAME; break;
-            case Action::BACK_TO_SETTINGS: *d->cur = Screen::SETTINGS; break;
+            // TMP changed to just do the same as start// case Action::RESTART: d->game->restart(); *d->cur = Screen::GAME; break;
+            case Action::BACK_TO_SETTINGS: d->game->reset(); *d->cur = Screen::SETTINGS; break;
             case Action::QUIT: *d->quit = true; break;
             default: break;
         }
@@ -54,7 +55,7 @@ int AppController::run()
 
         // Construct controllers (alive concurrently)
         SettingsController settings_ctl(*used_window, assets_path_);
-        GameStateController game_ctl(*used_window, assets_path_);
+        GameControllerT game_ctl(*used_window, assets_path_);
         EndController end_ctl(*used_window, assets_path_);
 
         // App runtime context and API
