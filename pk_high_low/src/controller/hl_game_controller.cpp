@@ -48,17 +48,45 @@ void HLGameController::configure(const game_settings& settings)
     model_utils_.replace_index_ = 0;
 
     // Game model functions
-    model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
-        return item.first.bts();
-    };
-    model_utils_.next_different_index_ = [&](hl_model_utils_t::dex_t::index_t index1, 
-                                              hl_model_utils_t::dex_t::index_t index2) {
-        hl_model_utils_t::dex_t::index_t next_index = index1;
-        while (next_index == index1 || next_index == index2) {
-            next_index = model_utils_.rng_utils_.dist_dex(model_utils_.rng_utils_.rng);
-        }
-        return next_index;
-    };
+    switch (settings.mode) {
+        case game_mode::SPEED:
+            model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
+                return item.first.speed;
+            };
+            break;
+        case game_mode::ATTACK:
+            model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
+                return std::max(item.first.atk, item.first.sp_atk);
+            };
+            break;
+        case game_mode::BTS:
+        default:
+            model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
+                return item.first.bts();
+            };
+            break;
+    }
+    
+    switch (settings.difficulty) {
+        // TO DO: Implement smarter index selection for MATCHED, HARD and CUSTOM difficulties
+        case difficulty_mode::CUSTOM:
+        case difficulty_mode::HARD:
+        case difficulty_mode::MATCHED:
+
+        // Random is default for now
+        case difficulty_mode::RANDOM:
+        default:
+            model_utils_.next_different_index_ = [&](hl_model_utils_t::dex_t::index_t index1, 
+                                                    hl_model_utils_t::dex_t::index_t index2) {
+                hl_model_utils_t::dex_t::index_t next_index = index1;
+                while (next_index == index1 || next_index == index2) {
+                    next_index = model_utils_.rng_utils_.dist_dex(model_utils_.rng_utils_.rng);
+                }
+                return next_index;
+            };
+            break;
+    }
+
     model_utils_.item_update_ = [&](std::pair<hl_model_utils_t::item_t, hl_model_utils_t::item_t>& items){
 
         // Update visibility of current items
