@@ -4,7 +4,7 @@
 namespace aff::pk_high_low::controller {
 
 enum class game_mode {
-    BTS,
+    BST,
     SPEED,
     ATTACK
 };
@@ -24,7 +24,7 @@ enum class difficulty_mode {
 };
 
 struct game_settings {
-    game_mode mode{game_mode::BTS};
+    game_mode mode{game_mode::BST};
     pokedex_mode pokedex{pokedex_mode::STANDARD};
     difficulty_mode difficulty{difficulty_mode::RANDOM};
     bool complete_mode{false};

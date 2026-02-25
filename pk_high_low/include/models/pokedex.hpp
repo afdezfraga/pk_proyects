@@ -19,7 +19,7 @@ namespace aff::pk_high_low::models {
  * @details
  * The pokedex class is optimized for fast retrieval by id and stat-based queries. It supports efficient creation,
  * reading, updating, and deletion of poke_specie objects. The main use case is to create the pokedex once and perform
- * fast lookups and range queries, such as finding all Pokémon with a base total stat (bts) within a given range, or
+ * fast lookups and range queries, such as finding all Pokémon with a base total stat (bst) within a given range, or
  * retrieving the N closest Pokémon to a target stat if not enough match the range.
  *
  * @note
@@ -32,7 +32,7 @@ namespace aff::pk_high_low::models {
  * pokedex dex;
  * dex.insert(specie);
  * auto found = dex.find_by_id("bulbasaur");
- * auto range = dex.find_by_bts_range(500, 30, 10); // bts in [470,530], at least 10 results
+ * auto range = dex.find_by_bst_range(500, 30, 10); // bst in [470,530], at least 10 results
  * @endcode
  */
 class pokedex {

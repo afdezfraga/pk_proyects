@@ -31,7 +31,7 @@ HLGameController::HLGameController(Window& window, const std::filesystem::path& 
 
 void HLGameController::configure(const game_settings& settings)
 {
-    // TMP ignore config and just use default BTS game mode for now
+    // TMP ignore config and just use default BST game mode for now
 
     // Pokedex
     model_utils_.dex_ = hl_model_utils_t::dex_t::from_file(assets_path_ / "dex.json");
@@ -50,19 +50,19 @@ void HLGameController::configure(const game_settings& settings)
     // Game model functions
     switch (settings.mode) {
         case game_mode::SPEED:
-            model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
+            model_utils_.get_bst_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
                 return item.first.speed;
             };
             break;
         case game_mode::ATTACK:
-            model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
+            model_utils_.get_bst_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
                 return std::max(item.first.atk, item.first.sp_atk);
             };
             break;
-        case game_mode::BTS:
+        case game_mode::BST:
         default:
-            model_utils_.get_bts_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
-                return item.first.bts();
+            model_utils_.get_bst_ = [](const hl_model_utils_t::item_t& item) -> hl_model_utils_t::item_score_t {
+                return item.first.bst();
             };
             break;
     }
@@ -128,7 +128,7 @@ void HLGameController::configure(const game_settings& settings)
     // --------------------------------------------------------------------------------------------
 
     hl_model_utils_t::model_t model = hl_model_utils_t::model_t(
-        std::move(model_utils_.get_bts_),
+        std::move(model_utils_.get_bst_),
         std::move(model_utils_.item_update_),
         std::move(model_utils_.auto_win_ties_)
     );

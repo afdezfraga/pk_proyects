@@ -127,7 +127,7 @@ aff::pk_high_low::controller::game_settings sdl_config_view::run_blocking()
         };
 
         // Prepare value strings
-        auto score_str = [&](){ using gm = aff::pk_high_low::controller::game_mode; switch(settings.mode){case gm::BTS: return std::string("BTS"); case gm::SPEED: return std::string("SPEED"); default: return std::string("ATTACK");}};
+        auto score_str = [&](){ using gm = aff::pk_high_low::controller::game_mode; switch(settings.mode){case gm::BST: return std::string("BST"); case gm::SPEED: return std::string("SPEED"); default: return std::string("ATTACK");}};
         auto pokedex_str = [&](){ using pm = aff::pk_high_low::controller::pokedex_mode; switch(settings.pokedex){case pm::STANDARD: return std::string("STANDARD"); case pm::GEN1_ONLY: return std::string("GEN1_ONLY"); default: return std::string("VGC");}};
         auto diff_str = [&](){ using dm = aff::pk_high_low::controller::difficulty_mode; switch(settings.difficulty){case dm::RANDOM: return std::string("RANDOM"); case dm::MATCHED: return std::string("MATCHED"); case dm::HARD: return std::string("HARD"); default: return std::string("CUSTOM");}};
 

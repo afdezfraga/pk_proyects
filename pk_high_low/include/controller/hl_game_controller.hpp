@@ -128,12 +128,12 @@ private:
                                                           static_cast<dex_t::index_t>(-1) };
         uint8_t replace_index_ { 0 };
 
-        std::function<item_score_t(const item_t&)> get_bts_;
+        std::function<item_score_t(const item_t&)> get_bst_;
         std::function<dex_t::index_t(dex_t::index_t, dex_t::index_t)> next_different_index_;
         std::function<void(std::pair<item_t, item_t>&)> item_update_;
         std::function<bool(const std::pair<item_score_t, item_score_t>&, const aff::pk_high_low::controller::game_choice&)> auto_win_ties_;
         using model_t = aff::pk_high_low::models::game_model<item_t, item_score_t, 
-                                                            decltype(get_bts_), 
+                                                            decltype(get_bst_), 
                                                             decltype(item_update_), 
                                                             decltype(auto_win_ties_)>;
         using view_t = aff::pk_high_low::views::hl_game_view<model_t>;

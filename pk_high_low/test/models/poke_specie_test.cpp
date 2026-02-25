@@ -37,7 +37,7 @@ TEST(Test_PokeSpecie, Test_IsAltForm) {
     EXPECT_TRUE(ps2.is_alt_form());
 }
 
-TEST(Test_PokeSpecie, Test_BTS) {
+TEST(Test_PokeSpecie, Test_BST) {
     poke_specie ps {
       .id {"0001"},
       .name {"Bulbasaur"},
@@ -50,7 +50,7 @@ TEST(Test_PokeSpecie, Test_BTS) {
       .sp_def {65},
       .speed {45}
     };
-    EXPECT_EQ(ps.bts(), 318);
+    EXPECT_EQ(ps.bst(), 318);
 }
 
 TEST(Test_PokeSpecie, Test_NumID) {

@@ -354,11 +354,11 @@ void play_high_low_sdl() {
     // Make utils for game model
     using item_t = std::pair<poke_specie, bool>; // bool indicates if revealed
     using item_score_t = poke_specie::poke_stat_t;
-    const auto get_bts = [](const item_t& item) -> item_score_t {
-        return item.first.bts();
+    const auto get_bst = [](const item_t& item) -> item_score_t {
+        return item.first.bst();
     };
 
-    const auto get_bts_speed = [](const item_t& item) -> item_score_t {
+    const auto get_bst_speed = [](const item_t& item) -> item_score_t {
         return item.first.speed;
     };
 
@@ -414,11 +414,11 @@ void play_high_low_sdl() {
     };
 
     using hl_model_t = game_model<item_t, item_score_t, 
-                                decltype(get_bts), 
+                                decltype(get_bst), 
                                 decltype(item_update), 
                                 decltype(auto_win_ties)>;
     auto hl_model = hl_model_t(
-        std::move(get_bts),
+        std::move(get_bst),
         std::move(item_update),
         std::move(auto_win_ties)
     );
@@ -488,7 +488,7 @@ void play_high_low(const aff::pk_high_low::models::pokedex& dex) {
 
     // Game logic things - Controller things to have
     const auto to_score = [](const item_t& item) -> score_t {
-        //return item.first.bts();
+        //return item.first.bst();
         //return item.first.speed;
         return std::max(item.first.atk, item.first.sp_atk);
     };

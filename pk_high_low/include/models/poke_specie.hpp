@@ -37,7 +37,7 @@ namespace aff::pk_high_low::models {
  *   Individual base stats.
  *
  * @section functions Member functions
- * - @fn poke_stat_t poke_specie::bts() const noexcept
+ * - @fn poke_stat_t poke_specie::bst() const noexcept
  *   Returns the base total stats (sum of the individual stat fields).
  * - @fn bool poke_specie::is_alt_form() const noexcept
  *   Returns true when this entry represents an alternate form.
@@ -65,7 +65,7 @@ struct poke_specie {
     poke_stat_t speed {};
 
 
-    poke_stat_t bts() const noexcept;
+    poke_stat_t bst() const noexcept;
     bool is_alt_form() const noexcept;
     num_id_t num_id() const noexcept;
 

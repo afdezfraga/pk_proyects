@@ -85,7 +85,7 @@ void SettingsController::tick(const SDL_Event* ev, AppContext& ctx, AppAPI& api)
         if (val_tex.raw()) { int tw=0,th=0; SDL_QueryTexture(val_tex.raw(), nullptr, nullptr, &tw, &th); SDL_Rect dst{400, y, tw, th}; SDL_RenderCopy(renderer, val_tex.raw(), nullptr, &dst); }
     };
 
-    auto score_str = [&](){ using gm = game_mode; switch(settings_.mode){case gm::BTS: return std::string("BTS"); case gm::SPEED: return std::string("SPEED"); default: return std::string("ATTACK");}};
+    auto score_str = [&](){ using gm = game_mode; switch(settings_.mode){case gm::BST: return std::string("BST"); case gm::SPEED: return std::string("SPEED"); default: return std::string("ATTACK");}};
     auto pokedex_str = [&](){ using pm = pokedex_mode; switch(settings_.pokedex){case pm::STANDARD: return std::string("STANDARD"); case pm::GEN1_ONLY: return std::string("GEN1_ONLY"); default: return std::string("VGC");}};
     auto diff_str = [&](){ using dm = difficulty_mode; switch(settings_.difficulty){case dm::RANDOM: return std::string("RANDOM"); case dm::MATCHED: return std::string("MATCHED"); case dm::HARD: return std::string("HARD"); default: return std::string("CUSTOM");}};
 

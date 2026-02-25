@@ -4,7 +4,7 @@
 
 namespace aff::pk_high_low::models {
 
-poke_specie::poke_stat_t poke_specie::bts() const noexcept {
+poke_specie::poke_stat_t poke_specie::bst() const noexcept {
     return hp + atk + def + sp_atk + sp_def + speed;
 }
 
