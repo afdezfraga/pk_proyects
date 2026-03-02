@@ -4,3 +4,4 @@ build/
 wasm_build/
 data/
 .vscode/
+prompts/
