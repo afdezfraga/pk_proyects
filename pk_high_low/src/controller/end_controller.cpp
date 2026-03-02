@@ -45,7 +45,7 @@ void EndController::tick(const SDL_Event* ev, AppContext& ctx, AppAPI& api)
     auto* ren = window_->renderer();
     window_->clear(SDL_Color{20,20,20,255});
 
-    auto title = Text::render(font_, "Game Over", SDL_Color{240,240,240,255}, ren);
+    auto title = Text::render(font_, "Game Over - Score: " + std::to_string(ctx.last_game_score), SDL_Color{240,240,240,255}, ren);
     if (title.raw()) { int tw=0,th=0; SDL_QueryTexture(title.raw(), nullptr, nullptr, &tw, &th); SDL_Rect dst{20,20,tw,th}; SDL_RenderCopy(ren, title.raw(), nullptr, &dst); }
 
     auto msg = Text::render(font_, "Enter = Restart   Backspace = Settings   Esc = Quit", SDL_Color{200,200,200,255}, ren);

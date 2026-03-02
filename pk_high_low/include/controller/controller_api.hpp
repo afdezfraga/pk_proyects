@@ -26,6 +26,7 @@ struct AppAPI {
 struct AppContext {
     aff::sdl_utils::common::Window* window = nullptr;
     std::filesystem::path assets_path;
+    int last_game_score { 0 };
 };
 
 } // namespace aff::pk_high_low::controller

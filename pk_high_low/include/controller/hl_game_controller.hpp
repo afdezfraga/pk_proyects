@@ -79,6 +79,7 @@ public:
                     // Determine if the game should continue
                     if (model_.is_game_over()) {
                         ctx_.game_state = HLGameState::SHOWING_LOST_ROUND;
+                        ctx.last_game_score = model_.getScore();
                     } else {
                         ctx_.game_state = HLGameState::SHOWING_CURRENT_ROUND;
                         model_.update_for_new_round();

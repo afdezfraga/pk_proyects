@@ -34,7 +34,7 @@ namespace aff::pk_high_low::views {
                     if (field_idx_ == 0) {
                         using gm = aff::pk_high_low::controller::game_mode;
                         if (ev->key.keysym.sym == SDLK_LEFT)
-                            settings.mode = static_cast<gm>((static_cast<int>(settings.mode) + 3) % 3);
+                            settings.mode = static_cast<gm>((static_cast<int>(settings.mode) + 2) % 3);
                         else
                             settings.mode = static_cast<gm>((static_cast<int>(settings.mode) + 1) % 3);
                     } else if (field_idx_ == 1) {
