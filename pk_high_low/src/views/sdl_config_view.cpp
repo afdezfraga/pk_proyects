@@ -67,8 +67,8 @@ namespace aff::pk_high_low::views {
         }
     }
 
-    // Render
-    ctx.window->clear(SDL_Color{10,10,10,255});
+    // Animated red background with diagonal black lines
+    bg_.render(ctx.window->renderer());
 
     // Title
     {

@@ -6,12 +6,15 @@
 #include <common_ui/window.hpp>
 #include <controller/settings_api.hpp>
 
+#include <views/sdl_config_bg.hpp>
+
 namespace aff::pk_high_low::views {
 
 class sdl_config_view {
 
 private:
     int field_idx_ {0}; // 0: mode, 1: pokedex, 2: difficulty, 3: complete_mode
+    sdl_config_bg bg_;
 
 public:
     // Rule of 0
