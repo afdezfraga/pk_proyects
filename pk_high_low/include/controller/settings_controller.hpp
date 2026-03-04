@@ -6,6 +6,7 @@
 #include <common_ui/text.hpp>
 #include <common_ui/window.hpp>
 #include <views/sdl_config_view.hpp>
+#include <views/SystemCheckView.hpp>
 #include <controller/settings_api.hpp>
 #include <controller/controller_api.hpp>
 #include <controller/game_mode.hpp>
@@ -26,7 +27,8 @@ private:
     game_settings settings_;
     SettingsContext ctx_;
     SettingsAPI settings_api_ { .request = [](SettingsContext& ctx, SettingsAction a){ ctx.pending_action = a; } };
-    aff::pk_high_low::views::sdl_config_view config_view_;
+    // aff::pk_high_low::views::sdl_config_view config_view_;
+    aff::pk_high_low::views::system_check_view config_view_;
 };
 
 } // namespace
