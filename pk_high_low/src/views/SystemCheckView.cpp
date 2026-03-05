@@ -15,17 +15,29 @@ void system_check_view::tick(const SDL_Event* ev,
     bg_.render(ctx.window->renderer());
 
     // Update progress based on time for demo purposes
-    Uint32 t = SDL_GetTicks() % 10000; // 0..10000
+    Uint32 new_t = SDL_GetTicks();
+    Uint32 dt = new_t - prev_t_;
+    Uint32 t = new_t % 10000; // 0..10000
     float pct = static_cast<float>(t) / 10000.0f;
+    prev_t_ = new_t;
 
-    // Responsive layout: progress bar centered horizontally, 22% down from top
+    // get window size for responsive layout
+    int win_w = 0, win_h = 0; SDL_GetRendererOutputSize(ctx.window->renderer(), &win_w, &win_h);
+
+    // Circular eye centered above the progress bar
+    eye_.setSizePercent(0.25f, 0.25f); // 25% of width/height
+    eye_.setAnchor(0.5f, 0.35f);
+    eye_.computeLayout(win_w, win_h);
+    eye_.update(dt); // period of 2 seconds for full rotation
+    eye_.render(ctx.window->renderer());
+
+    // Responsive layout: progress bar centered horizontally, 65% down from top
     progress_.setSizePercent(0.8f, 0.02f); // 80% width, 2% height
     progress_.setAnchor(0.5f, 0.65f); // anchor center horizontally, 65% down vertically
-    int win_w = 0, win_h = 0; SDL_GetRendererOutputSize(ctx.window->renderer(), &win_w, &win_h);
     // compute/update/render
     progress_.computeLayout(win_w, win_h);
     progress_.setValue(pct);
-    progress_.update(1.0f/60.0f);
+    progress_.update(dt);
     progress_.render(ctx.window->renderer());
 
     // Launch button

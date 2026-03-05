@@ -8,6 +8,7 @@
 
 #include <widgets/ProgressBar.hpp>
 #include <widgets/Button.hpp>
+#include <widgets/special/CircularEye.hpp>
 
 namespace aff::pk_high_low::views {
 
@@ -21,9 +22,11 @@ public:
               aff::pk_high_low::controller::SettingsAPI& api);
 
 private:
+    Uint32 prev_t_ {0};
     sdl_config_bg bg_;
     aff::sdl_utils::widgets::ProgressBar progress_;
     aff::sdl_utils::widgets::Button launch_btn_;
+    aff::sdl_utils::widgets::special::CircularEye eye_;
 };
 
 } // namespace aff::pk_high_low::views

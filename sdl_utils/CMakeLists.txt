@@ -9,7 +9,7 @@ find_package(SDL2 QUIET)
 find_package(SDL2_image QUIET)
 find_package(SDL2_ttf QUIET)
 
-file(GLOB_RECURSE SDL_UTILS_SRCS "src/*.cpp")
+file(GLOB_RECURSE SDL_UTILS_SRCS "src/**/*.cpp")
 
 add_library(sdl_utils STATIC ${SDL_UTILS_SRCS})
 target_include_directories(sdl_utils PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
