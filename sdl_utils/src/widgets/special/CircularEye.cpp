@@ -43,21 +43,32 @@ static void drawArcSegment(SDL_Renderer* renderer, int cx, int cy, int r, SDL_Co
     while (endAngle >= TWO_PI) endAngle -= TWO_PI;
 
     auto draw_range = [&](float a0, float a1) {
+        float len = a1 - a0;
+        if (len <= 0.0f) return;
         for (float a = a0; a <= a1 + 1e-6f; a += step) {
             float dx = std::cos(a);
             float dy = std::sin(a);
             int px = static_cast<int>(cx + dx * r + 0.5f);
             int py = static_cast<int>(cy + dy * r + 0.5f);
-            drawFilledCircle(renderer, px, py, thickness, color);
+            // normalized position along the segment [0..1]
+            float t = (a - a0) / len;
+            if (t < 0.0f) t = 0.0f;
+            if (t > 1.0f) t = 1.0f;
+            // smooth taper: sin(pi * t) -> 0 at edges, 1 at center
+            float weight = std::sin(t * M_PI);
+            Uint8 alpha = 1;
+            if (color.a > 0) alpha = static_cast<Uint8>(std::max(1.0f, color.a * weight));
+            SDL_Color c = color;
+            c.a = alpha;
+            drawFilledCircle(renderer, px, py, thickness, c);
         }
     };
 
     if (endAngle >= startAngle) {
         draw_range(startAngle, endAngle);
     } else {
-        // wraps around 2pi: draw start->2pi and 0->end
-        draw_range(startAngle, TWO_PI);
-        draw_range(0.0f, endAngle);
+        // wraps around 2pi: draw start->2pi+end
+        draw_range(startAngle, TWO_PI + endAngle);
     }
 }
 

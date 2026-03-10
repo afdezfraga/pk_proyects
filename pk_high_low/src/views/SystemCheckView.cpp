@@ -42,16 +42,19 @@ void system_check_view::tick(const SDL_Event* ev,
 
     // Launch button
     // Big action button near bottom, full-widthish
-    launch_btn_.setSizePercent(0.85f, 0.12f);
-    launch_btn_.setAnchor(0.5f, 0.82f);
+    if (!is_set_up_) {
+        launch_btn_.setSizePercent(0.85f, 0.12f);
+        launch_btn_.setAnchor(0.5f, 0.82f);
+        launch_btn_.setText("LAUNCH POKÉDEX");
+        launch_btn_.setCallback([&api, &ctx](){ api.request(ctx, aff::pk_high_low::controller::SettingsAction::START_GAME); });
+        launch_btn_.setFont(&ctx.font);
+    }
     launch_btn_.computeLayout(win_w, win_h);
-    launch_btn_.setText("LAUNCH POKÉDEX");
-    launch_btn_.setCallback([&api, &ctx](){ api.request(ctx, aff::pk_high_low::controller::SettingsAction::START_GAME); });
-    // ensure button has a font to render text
-    launch_btn_.setFont(&ctx.font);
-    // draw button
+    if (ev) launch_btn_.handleEvent(*ev);
     launch_btn_.render(ctx.window->renderer());
+    
 
+    is_set_up_ = true;
     ctx.window->present();
 }
 

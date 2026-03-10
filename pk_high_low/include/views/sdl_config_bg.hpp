@@ -10,7 +10,7 @@ class sdl_config_bg {
 private:
     Uint32 anim_period_ {4000};
     int line_spacing_ {64};
-    SDL_Color bg_color_ { 211, 47, 47, 255 };
+    SDL_Color bg_color_ { 183, 28, 28, 255 };
     SDL_Color white_color_ { 255, 255, 255, 255 };
     SDL_Color blue_color_ { 3, 169, 244, 255 };
     const Uint8 opacity_40_ { 102 }; // 40% opacity for anti-aliasing

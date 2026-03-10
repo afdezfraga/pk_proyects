@@ -45,6 +45,7 @@ bool Button::handleEvent(const SDL_Event& ev) {
         int mx = ev.button.x, my = ev.button.y;
         if (pressed_) {
             pressed_ = false;
+            hover_ = false; // reset hover on click release to avoid sticky state if mouse moved out
             if (mx >= x() && mx <= x()+w() && my >= y() && my <= y()+h()) {
                 if (cb_) cb_();
                 return true;

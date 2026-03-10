@@ -122,8 +122,8 @@ private:
       right_rect = {0, h / 2, w, h - h / 2};
     }
 
-    render_item_in_rect(items.first, scores.first, ctx, left_rect, reveal_score);
-    render_item_in_rect(items.second, scores.second, ctx, right_rect, reveal_score);
+    render_item_in_rect_fancy("1", items.first, scores.first, ctx, left_rect, reveal_score);
+    render_item_in_rect_fancy("2", items.second, scores.second, ctx, right_rect, reveal_score);
 
     SDL_RenderPresent(ctx.window->renderer());
   }
@@ -169,6 +169,128 @@ private:
       render_text_at(ctx, std::string("Score: ") + std::to_string(score),
                      rect.x + 10, rect.y + rect.h - 25, rect.w - 20);
     }
+  }
+
+  // A fancier renderer that draws a framed card with shadow, cyan frame,
+  // score badge and centered name — inspired by the provided mockup.
+  void render_item_in_rect_fancy(const std::string& key,
+                                 const typename M::item_t &item,
+                                 const typename M::item_score_t &score,
+                                 controller::HLGameContext& ctx,
+                                 const SDL_Rect &rect,
+                                 bool reveal_score) {
+    // enable blending for semi-transparent shapes
+    SDL_BlendMode old_mode;
+    SDL_GetRenderDrawBlendMode(ctx.window->renderer(), &old_mode); // query current mode
+    SDL_SetRenderDrawBlendMode(ctx.window->renderer(), SDL_BLENDMODE_BLEND);
+
+    // Drop shadow (slightly offset dark rectangle)
+    SDL_Rect shadow = rect;
+    shadow.x += 6; shadow.y += 6;
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 0, 0, 0, 120);
+    SDL_RenderFillRect(ctx.window->renderer(), &shadow);
+
+    // Card background (dark, slightly inset)
+    SDL_Rect card = rect;
+    card.x += 6; card.y += 6; card.w -= 12; card.h -= 12;
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 28, 30, 33, 220);
+    SDL_RenderFillRect(ctx.window->renderer(), &card);
+
+    // Inner darker panel for the image area
+    SDL_Rect image_panel = card;
+    image_panel.x += 12; image_panel.y += 12;
+    image_panel.w -= 24; image_panel.h = (int)(card.h * 0.62f);
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 24, 26, 28, 200);
+    SDL_RenderFillRect(ctx.window->renderer(), &image_panel);
+
+    // Cyan frame glow: draw a thin bright outline and an outer darker stroke
+    SDL_Rect frame = card;
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 12, 160, 160, 200);
+    SDL_RenderDrawRect(ctx.window->renderer(), &frame);
+    // additional subtle outer stroke
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 6, 80, 80, 80);
+    SDL_Rect outer = { frame.x - 2, frame.y - 2, frame.w + 4, frame.h + 4 };
+    SDL_RenderDrawRect(ctx.window->renderer(), &outer);
+
+    // Load and draw image centered in image_panel, preserving aspect ratio
+    SDL_Texture *tex = load_texture_for_id(ctx, item.first.id);
+    if (tex) {
+      int tw, th;
+      SDL_QueryTexture(tex, nullptr, nullptr, &tw, &th);
+      int padding = 8;
+      int avail_w = image_panel.w - padding * 2;
+      int avail_h = image_panel.h - padding * 2;
+      float img_aspect = (float)tw / (float)th;
+      int dst_w = avail_w;
+      int dst_h = (int)(dst_w / img_aspect);
+      if (dst_h > avail_h) {
+        dst_h = avail_h;
+        dst_w = (int)(dst_h * img_aspect);
+      }
+      SDL_Rect dst{ image_panel.x + (image_panel.w - dst_w) / 2,
+                    image_panel.y + (image_panel.h - dst_h) / 2,
+                    dst_w, dst_h };
+
+      // subtle vignette: draw a semi-transparent dark overlay around edges
+      SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+      SDL_RenderCopy(ctx.window->renderer(), tex, nullptr, &dst);
+
+      // optional small inner highlight (a translucent white rect near top)
+      SDL_SetRenderDrawColor(ctx.window->renderer(), 255, 255, 255, 18);
+      SDL_Rect highlight = dst;
+      highlight.h = (int)(dst.h * 0.18f);
+      SDL_RenderFillRect(ctx.window->renderer(), &highlight);
+    }
+
+    // Name area: centered text near bottom of the card
+    int name_y = card.y + card.h - 56;
+    std::string name_text = item.first.name + (item.first.is_alt_form() ? (" (" + item.first.alt_name + ")") : "");
+    render_text_centered_in_rect(ctx, name_text, name_y, card);
+
+    // small indicator dots under the name (like in mockup)
+    int dots_y = name_y + 28;
+    int center_x = card.x + card.w / 2;
+    int dot_r = 4;
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 12, 160, 160, 200);
+    for (int i = -1; i <= 1; ++i) {
+      SDL_Rect d{ center_x + i * 14 - dot_r, dots_y - dot_r, dot_r * 2, dot_r * 2 };
+      SDL_RenderFillRect(ctx.window->renderer(), &d);
+    }
+
+    // Score badge at top-right of the card
+    int badge_w = 74;
+    int badge_h = 48;
+    SDL_Rect badge{ card.x + card.w - badge_w - 12, card.y + 12, badge_w, badge_h };
+    // badge background (semi-transparent dark circle-like rect)
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 6, 80, 80, 160);
+    SDL_RenderFillRect(ctx.window->renderer(), &badge);
+    // badge outline
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 12, 160, 160, 220);
+    SDL_RenderDrawRect(ctx.window->renderer(), &badge);
+
+    // Badge text (score or ???)
+    std::string badge_top = reveal_score || item.second ? std::to_string(score) : "???";
+    //std::string badge_bot = "SPD";
+    // center top text in badge
+    render_text_centered_in_rect(ctx, badge_top, std::nullopt, badge);
+    //render_text_centered_in_rect(ctx, badge_bot, badge.y + 24, badge);
+
+    // If score should be highlighted (revealed), add a faint glow behind badge
+    if (reveal_score || item.second) {
+      SDL_SetRenderDrawColor(ctx.window->renderer(), 12, 160, 160, 40);
+      SDL_Rect glow = badge; glow.x -= 6; glow.y -= 6; glow.w += 12; glow.h += 12;
+      SDL_RenderFillRect(ctx.window->renderer(), &glow);
+    }
+
+    // Finally, small bottom-left action circle (decorative)
+    SDL_Rect action{ card.x + 12, card.y + card.h - 36, 28, 28 };
+    SDL_SetRenderDrawColor(ctx.window->renderer(), 12, 160, 160, 60);
+    SDL_RenderFillRect(ctx.window->renderer(), &action);
+    SDL_SetRenderDrawBlendMode(ctx.window->renderer(), old_mode); // restore previous blend mode
+
+    // Render the key (1 or 2) at top-left corner of the card for player reference
+    std::string key_text = key;
+    render_text_centered_in_rect(ctx, key_text, std::nullopt, action);
   }
 
   void handle_event_current_round(const SDL_Event* ev, controller::HLGameContext& ctx, controller::HLGameAPI& api) {
@@ -261,6 +383,20 @@ private:
             SDL_Rect dst { (win_w - surf_w) / 2, y, surf_w, surf_h };
             SDL_RenderCopy(ctx.window->renderer(), tex, nullptr, &dst);
             SDL_DestroyTexture(tex);
+    }
+    void render_text_centered_in_rect(controller::HLGameContext& ctx, const std::string& txt, std::optional<int> y, SDL_Rect rect) {
+        if (!ctx.font.raw()) return;
+              SDL_Color col { 255, 255, 255, 255 };
+              SDL_Surface* surf = TTF_RenderUTF8_Blended_Wrapped(ctx.font.raw(), txt.c_str(), col, rect.w);
+              if (!surf) return;
+              SDL_Texture* tex = SDL_CreateTextureFromSurface(ctx.window->renderer(), surf);
+              int surf_w = surf->w;
+              int surf_h = surf->h;
+              SDL_FreeSurface(surf);
+              if (!tex) return;
+              SDL_Rect dst { rect.x + (rect.w - surf_w) / 2, y.value_or(rect.y + (rect.h - surf_h) / 2), surf_w, surf_h };
+              SDL_RenderCopy(ctx.window->renderer(), tex, nullptr, &dst);
+              SDL_DestroyTexture(tex);
     }
 
     SDL_Texture* load_texture_for_id(controller::HLGameContext& ctx, const std::string& id) {

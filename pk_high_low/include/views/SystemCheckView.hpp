@@ -22,6 +22,9 @@ public:
               aff::pk_high_low::controller::SettingsAPI& api);
 
 private:
+    bool is_set_up_ = false;
+    aff::sdl_utils::widgets::Button set_launch_btn();
+
     Uint32 prev_t_ {0};
     sdl_config_bg bg_;
     aff::sdl_utils::widgets::ProgressBar progress_;
