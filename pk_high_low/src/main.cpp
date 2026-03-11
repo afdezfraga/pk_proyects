@@ -51,7 +51,7 @@ int main() {
     try {
         // Initialize SDL subsystems via SDLManager and create a Window to pass to AppController
         SDLManager manager(SDL_INIT_VIDEO);
-        Window window("PK High-Low", 1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+        Window window("PK High-Low", 1024, 768, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
         aff::pk_high_low::controller::AppController app(window, assets_path);
         return app.run();
     } catch (const std::exception& ex) {

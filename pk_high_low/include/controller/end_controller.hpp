@@ -5,6 +5,8 @@
 #include <common_ui/window.hpp>
 #include <common_ui/font.hpp>
 #include <controller/controller_api.hpp>
+#include <memory>
+#include <views/end_view.hpp>
 
 namespace aff::pk_high_low::controller {
 
@@ -17,6 +19,7 @@ private:
     aff::sdl_utils::common::Window* window_;
     std::filesystem::path assets_path_;
     aff::sdl_utils::common::Font font_;
+    std::unique_ptr<aff::pk_high_low::views::EndView> view_;
 };
 
 } // namespace
