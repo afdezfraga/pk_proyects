@@ -26,7 +26,8 @@ set(EXECUTABLE_NAME pk_high_low)
 #####
 #####
 if (EMSCRIPTEN)
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    # For emscripten, the results are generated in the site/ directory
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/site)
 endif()
 add_executable(${EXECUTABLE_NAME} ${SOURCES})
 
