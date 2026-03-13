@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>PK High Low — Fullscreen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html,body{height:100%;margin:0}
+    body{display:flex;align-items:stretch;justify-content:stretch;background:#000}
+    canvas{display:block;border:0;outline:0;width:100vw;height:100vh}
+  </style>
+</head>
+<body>
+  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  <script>
+    var canvas = document.getElementById('canvas');
+    var Module = {
+      canvas: canvas,
+      print: function(){ console.log.apply(console, arguments); },
+      setStatus: function(s){ console.log(s); }
+    };
+  </script>
+  <script async src="pk_high_low.js"></script>
+</body>
+</html>
