@@ -18,6 +18,7 @@ public:
 
     void update(float dt) override;
     void render(SDL_Renderer* renderer) override;
+    void render_animated(SDL_Renderer* renderer);
 
 private:
     float rotation_ = 0.0f; // radians

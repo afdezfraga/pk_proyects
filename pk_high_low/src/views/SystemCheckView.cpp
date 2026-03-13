@@ -25,11 +25,17 @@ void system_check_view::tick(const SDL_Event* ev,
     int win_w = 0, win_h = 0; SDL_GetRendererOutputSize(ctx.window->renderer(), &win_w, &win_h);
 
     // Circular eye centered above the progress bar
-    eye_.setSizePercent(0.25f, 0.25f); // 25% of width/height
-    eye_.setAnchor(0.5f, 0.35f);
-    eye_.computeLayout(win_w, win_h);
-    eye_.update(dt); // period of 2 seconds for full rotation
-    eye_.render(ctx.window->renderer());
+    if (!is_set_up_ || (ev && ev->type == SDL_WINDOWEVENT && ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED)) {
+        eye_.setSizePercent(0.25f, 0.25f); // 25% of width/height
+        eye_.setAnchor(0.5f, 0.35f);
+        eye_.computeLayout(win_w, win_h);
+        eye_.update(dt); // period of 2 seconds for full rotation
+        eye_.render(ctx.window->renderer());
+    } else {
+        eye_.update(dt);
+        eye_.render_animated(ctx.window->renderer());
+    }
+
 
     // Responsive layout: progress bar centered horizontally, 65% down from top
     progress_.setSizePercent(0.8f, 0.02f); // 80% width, 2% height

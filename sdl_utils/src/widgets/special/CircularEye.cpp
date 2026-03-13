@@ -1,6 +1,7 @@
 #include "widgets/special/CircularEye.hpp"
 #include <SDL.h>
 #include <cmath>
+#include <algorithm>
 
 namespace aff::sdl_utils::widgets::special {
 
@@ -120,6 +121,49 @@ void CircularEye::render(SDL_Renderer* renderer) {
     int hx = cx - pupil_r/4;
     int hy = cy - pupil_r/4;
     drawFilledCircle(renderer, hx, hy, pupil_r/4, highlight);
+
+    // white glow
+    // aff::sdl_utils::effects::GlowLayer::renderGlow(renderer, hx, hy, (pupil_r/4) + 6, SDL_Color{255,255,255,100});
+}
+
+void CircularEye::render_animated(SDL_Renderer* renderer) {
+    if (!visible()) return;
+    int cx = x() + w() / 2;
+    int cy = y() + h() / 2;
+    int outer_r = std::min(w(), h()) / 2;
+
+    // iris (outer ring)
+    SDL_Color iris = iris_color_;
+    // drawFilledCircle(renderer, cx, cy, outer_r, iris);
+
+    // orbits: multiple concentric rings around the eye
+    SDL_Color orbitCol{0,170,255,120};
+    // inner thin orbit
+    //drawOrbitThin(renderer, cx, cy, outer_r + 10, orbitCol, 1);
+    // middle faint orbit
+    SDL_Color orbitCol2{0,170,255,90};
+    //drawOrbitThin(renderer, cx, cy, outer_r + 22, orbitCol2, 1);
+    // outer orbit with rotating thicker segment
+    SDL_Color orbitCol3{0,170,255,200};
+    float segLen = M_PI / 6.0f; // 30 degrees
+    //drawOrbitThin(renderer, cx, cy, outer_r + 34, orbitCol3, 1);
+    float half = segLen * 0.5f;
+    float startA = rotation_ - half;
+    float endA = rotation_ + half;
+    drawArcSegment(renderer, cx, cy, outer_r + 34, orbitCol3, 3, startA, endA);
+
+    // inner pupil
+    int pupil_r = static_cast<int>(outer_r * 0.65f);
+    //drawFilledCircle(renderer, cx, cy, pupil_r, pupil_color_);
+
+    // glow
+    //aff::sdl_utils::effects::GlowLayer::renderGlow(renderer, cx, cy, outer_r + 12, glow_color_);
+
+    // specular highlight
+    SDL_Color highlight{255,255,255,200};
+    int hx = cx - pupil_r/4;
+    int hy = cy - pupil_r/4;
+    // drawFilledCircle(renderer, hx, hy, pupil_r/4, highlight);
 
     // white glow
     // aff::sdl_utils::effects::GlowLayer::renderGlow(renderer, hx, hy, (pupil_r/4) + 6, SDL_Color{255,255,255,100});
