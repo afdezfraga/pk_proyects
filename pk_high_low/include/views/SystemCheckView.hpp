@@ -9,6 +9,10 @@
 #include <widgets/ProgressBar.hpp>
 #include <widgets/Button.hpp>
 #include <widgets/special/CircularEye.hpp>
+#include <common_ui/font.hpp>
+#include <common_ui/text.hpp>
+#include <common_ui/Theme.hpp>
+#include <optional>
 
 namespace aff::pk_high_low::views {
 
@@ -30,6 +34,14 @@ private:
     aff::sdl_utils::widgets::ProgressBar progress_;
     aff::sdl_utils::widgets::Button launch_btn_;
     aff::sdl_utils::widgets::special::CircularEye eye_;
+
+    // Title textures, font and layout for "StatDex.Check"
+    std::optional<aff::sdl_utils::common::Font> title_font_;
+    aff::sdl_utils::common::Texture title_left_tex_;
+    aff::sdl_utils::common::Texture title_right_tex_;
+    SDL_Rect title_left_rect_ { 0, 0, 0, 0 };
+    SDL_Rect title_right_rect_ { 0, 0, 0, 0 };
+    bool title_needs_update_ = true;
 };
 
 } // namespace aff::pk_high_low::views
