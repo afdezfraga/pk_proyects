@@ -6,6 +6,13 @@
 
 namespace aff::pk_high_low::views {
 
+int system_check_view::get_title_font_size(int win_w) {
+    // Determine font size based on window width for responsive design
+    if (win_w >= 720) return 72; // large screens
+    else if (win_w >= 480) return 48; // medium screens
+    else return 32; // small screens
+}
+
 void system_check_view::tick(const SDL_Event* ev,
     aff::pk_high_low::controller::SettingsContext& ctx,
     aff::pk_high_low::controller::SettingsAPI& api)
@@ -21,7 +28,13 @@ void system_check_view::tick(const SDL_Event* ev,
         aff::sdl_utils::common::Theme theme;
         SDL_Renderer* ren = ctx.window->renderer();
         // create/update textures when layout changes
-        if (!is_set_up_ || title_needs_update_) {
+        if (!is_set_up_ || (ev && ev->type == SDL_WINDOWEVENT && ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED)) {
+            int win_w = 0, win_h = 0; SDL_GetRendererOutputSize(ren, &win_w, &win_h);
+            int desired_font_size = get_title_font_size(win_w);
+            if (desired_font_size != title_font_size_) {
+                title_font_.reset(); // force re-creation of font and textures if font size changes
+                title_font_size_ = desired_font_size;
+            }
             // lazy-init title font: prefer SpaceGrotesk-Bold from assets, fallback to other candidates
             if (!title_font_) {
                 std::string fp;
@@ -36,7 +49,7 @@ void system_check_view::tick(const SDL_Event* ev,
                     };
                     for (auto &pp : candidates) if (std::filesystem::exists(pp)) { fp = pp.string(); break; }
                 }
-                title_font_.emplace(fp, 72);
+                title_font_.emplace(fp, get_title_font_size(win_w));
             }
 
             const aff::sdl_utils::common::Font& tf = *title_font_;
@@ -45,12 +58,10 @@ void system_check_view::tick(const SDL_Event* ev,
             int w1=0,h1=0,w2=0,h2=0; if (title_left_tex_.raw()) SDL_QueryTexture(title_left_tex_.raw(), nullptr, nullptr, &w1, &h1);
             if (title_right_tex_.raw()) SDL_QueryTexture(title_right_tex_.raw(), nullptr, nullptr, &w2, &h2);
             int total_w = w1 + w2;
-            int win_w = 0, win_h = 0; SDL_GetRendererOutputSize(ren, &win_w, &win_h);
             int x = (win_w - total_w) / 2;
             int y = 20;
             title_left_rect_ = { x, y, w1, h1 };
             title_right_rect_ = { x + w1, y, w2, h2 };
-            title_needs_update_ = false;
         }
         if (title_left_tex_.raw()) SDL_RenderCopy(ren, title_left_tex_.raw(), nullptr, &title_left_rect_);
         if (title_right_tex_.raw()) SDL_RenderCopy(ren, title_right_tex_.raw(), nullptr, &title_right_rect_);
@@ -73,7 +84,6 @@ void system_check_view::tick(const SDL_Event* ev,
         eye_.computeLayout(win_w, win_h);
         eye_.update(dt); // period of 2 seconds for full rotation
         eye_.render(ctx.window->renderer());
-        title_needs_update_ = true;
     } else {
         eye_.update(dt);
         eye_.render_animated(ctx.window->renderer());
