@@ -32,4 +32,37 @@ struct game_settings {
 
 } // namespace aff::pk_high_low::controller
 
+// Helper functions for converting enums to display strings
+namespace aff::pk_high_low::controller {
+
+inline const char* to_string(game_mode m) {
+    switch (m) {
+        case game_mode::BST: return "BST";
+        case game_mode::SPEED: return "Speed";
+        case game_mode::ATTACK: return "Attack";
+    }
+    return "Unknown";
+}
+
+inline const char* to_string(pokedex_mode p) {
+    switch (p) {
+        case pokedex_mode::STANDARD: return "Standard";
+        case pokedex_mode::GEN1_ONLY: return "Gen I";
+        case pokedex_mode::VGC: return "VGC";
+    }
+    return "Unknown";
+}
+
+inline const char* to_string(difficulty_mode d) {
+    switch (d) {
+        case difficulty_mode::RANDOM: return "Random";
+        case difficulty_mode::MATCHED: return "Matched";
+        case difficulty_mode::HARD: return "Hard";
+        case difficulty_mode::CUSTOM: return "Custom";
+    }
+    return "Unknown";
+}
+
+} // namespace aff::pk_high_low::controller
+
 #endif // AFF_PK_PROJECTS_PK_HIGH_LOW_CONTROLLER_GAME_MODE_HPP

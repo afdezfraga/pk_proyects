@@ -9,6 +9,7 @@
 #include <widgets/ProgressBar.hpp>
 #include <widgets/Button.hpp>
 #include <widgets/special/CircularEye.hpp>
+#include <widgets/EnumSelector.hpp>
 #include <common_ui/font.hpp>
 #include <common_ui/text.hpp>
 #include <common_ui/Theme.hpp>
@@ -32,7 +33,10 @@ private:
 
     Uint32 prev_t_ {0};
     sdl_config_bg bg_;
-    aff::sdl_utils::widgets::ProgressBar progress_;
+    // replaced progress bar with three enum selectors
+    aff::sdl_utils::widgets::EnumSelector mode_selector_;
+    aff::sdl_utils::widgets::EnumSelector pokedex_selector_;
+    aff::sdl_utils::widgets::EnumSelector difficulty_selector_;
     aff::sdl_utils::widgets::Button launch_btn_;
     aff::sdl_utils::widgets::special::CircularEye eye_;
 

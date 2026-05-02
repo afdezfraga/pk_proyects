@@ -2,6 +2,7 @@
 #include <common_ui/font.hpp>
 #include <common_ui/text.hpp>
 #include <common_ui/Theme.hpp>
+#include <widgets/EnumSelector.hpp>
 #include <filesystem>
 
 namespace aff::pk_high_low::views {
@@ -91,14 +92,57 @@ void system_check_view::tick(const SDL_Event* ev,
     }
 
 
-    // Responsive layout: progress bar centered horizontally, 65% down from top
-    progress_.setSizePercent(0.8f, 0.02f); // 80% width, 2% height
-    progress_.setAnchor(0.5f, 0.65f); // anchor center horizontally, 65% down vertically
-    // compute/update/render
-    progress_.computeLayout(win_w, win_h);
-    progress_.setValue(pct);
-    progress_.update(dt);
-    progress_.render(ctx.window->renderer());
+    // Responsive layout: replace progress bar with three selectors stacked vertically
+    // Each selector will be full-width-ish and spaced vertically
+    float sel_w = 0.8f;
+    float sel_h = 0.07f;
+    float start_anchor_y = 0.60f; // start ~60% down
+    float gap = 0.02f;
+
+    // Setup selectors on first layout or resize
+    if (!is_set_up_ || (ev && ev->type == SDL_WINDOWEVENT && ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED)) {
+        // build option lists from enums
+        using namespace aff::pk_high_low::controller;
+        std::vector<std::string> mode_opts{ to_string(game_mode::BST), to_string(game_mode::SPEED), to_string(game_mode::ATTACK) };
+        std::vector<std::string> pokedex_opts{ to_string(pokedex_mode::STANDARD), to_string(pokedex_mode::GEN1_ONLY), to_string(pokedex_mode::VGC) };
+        std::vector<std::string> diff_opts{ to_string(difficulty_mode::RANDOM), to_string(difficulty_mode::MATCHED), to_string(difficulty_mode::HARD), to_string(difficulty_mode::CUSTOM) };
+
+        mode_selector_.setSizePercent(sel_w, sel_h);
+        mode_selector_.setAnchor(0.5f, start_anchor_y);
+        mode_selector_.setOptions(mode_opts);
+        mode_selector_.setFont(&ctx.font);
+        mode_selector_.setValue(static_cast<size_t>(ctx.settings.mode));
+        mode_selector_.setCallback([&api, &ctx](size_t idx){ ctx.settings.mode = static_cast<aff::pk_high_low::controller::game_mode>(idx); api.request(ctx, aff::pk_high_low::controller::SettingsAction::UPDATE_SETTINGS); });
+
+        pokedex_selector_.setSizePercent(sel_w, sel_h);
+        pokedex_selector_.setAnchor(0.5f, start_anchor_y + sel_h + gap);
+        pokedex_selector_.setOptions(pokedex_opts);
+        pokedex_selector_.setFont(&ctx.font);
+        pokedex_selector_.setValue(static_cast<size_t>(ctx.settings.pokedex));
+        pokedex_selector_.setCallback([&api, &ctx](size_t idx){ ctx.settings.pokedex = static_cast<aff::pk_high_low::controller::pokedex_mode>(idx); api.request(ctx, aff::pk_high_low::controller::SettingsAction::UPDATE_SETTINGS); });
+
+        difficulty_selector_.setSizePercent(sel_w, sel_h);
+        difficulty_selector_.setAnchor(0.5f, start_anchor_y + 2*(sel_h + gap));
+        difficulty_selector_.setOptions(diff_opts);
+        difficulty_selector_.setFont(&ctx.font);
+        difficulty_selector_.setValue(static_cast<size_t>(ctx.settings.difficulty));
+        difficulty_selector_.setCallback([&api, &ctx](size_t idx){ ctx.settings.difficulty = static_cast<aff::pk_high_low::controller::difficulty_mode>(idx); api.request(ctx, aff::pk_high_low::controller::SettingsAction::UPDATE_SETTINGS); });
+    }
+
+    // compute/update/render selectors
+    mode_selector_.computeLayout(win_w, win_h);
+    pokedex_selector_.computeLayout(win_w, win_h);
+    difficulty_selector_.computeLayout(win_w, win_h);
+
+    if (ev) {
+        mode_selector_.handleEvent(*ev);
+        pokedex_selector_.handleEvent(*ev);
+        difficulty_selector_.handleEvent(*ev);
+    }
+
+    mode_selector_.render(ctx.window->renderer());
+    pokedex_selector_.render(ctx.window->renderer());
+    difficulty_selector_.render(ctx.window->renderer());
 
     // Launch button
     // Big action button near bottom, full-widthish
