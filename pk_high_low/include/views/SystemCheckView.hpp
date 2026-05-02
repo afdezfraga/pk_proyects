@@ -42,7 +42,11 @@ private:
     aff::sdl_utils::common::Texture title_right_tex_;
     SDL_Rect title_left_rect_ { 0, 0, 0, 0 };
     SDL_Rect title_right_rect_ { 0, 0, 0, 0 };
-    int title_font_size_ { 72 };
+
+    const int sm_title_font_size_ { 32 };
+    const int md_title_font_size_ { 48 };
+    const int lg_title_font_size_ { 72 };
+    int title_font_size_ { lg_title_font_size_ };
 };
 
 } // namespace aff::pk_high_low::views

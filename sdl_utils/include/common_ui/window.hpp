@@ -12,6 +12,10 @@ namespace aff::sdl_utils::common {
 
 class Window {
 public:
+    static constexpr int SMALL_W_BREAK_POINT = 480;
+    static constexpr int BIG_W_BREAK_POINT = 720;
+
+public:
     Window(const std::string& title, int w, int h, Uint32 flags = SDL_WINDOW_SHOWN);
     ~Window();
 

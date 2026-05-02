@@ -7,10 +7,11 @@
 namespace aff::pk_high_low::views {
 
 int system_check_view::get_title_font_size(int win_w) {
+    using namespace aff::sdl_utils::common;
     // Determine font size based on window width for responsive design
-    if (win_w >= 720) return 72; // large screens
-    else if (win_w >= 480) return 48; // medium screens
-    else return 32; // small screens
+    if (win_w >= Window::BIG_W_BREAK_POINT) return lg_title_font_size_; // large screens
+    else if (win_w >= Window::SMALL_W_BREAK_POINT) return md_title_font_size_; // medium screens
+    else return sm_title_font_size_; // small screens
 }
 
 void system_check_view::tick(const SDL_Event* ev,
