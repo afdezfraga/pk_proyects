@@ -11447,6 +11447,36 @@
     }
   },
   {
+    "id": "0670_a",
+    "name": "Floette",
+    "alt_name": "Eternal Flower Floette",
+    "types": ["Fairy"],
+    "stats": {
+      "total": 551,
+      "hp": 74,
+      "attack": 65,
+      "defense": 67,
+      "sp.atk": 125,
+      "sp.def": 128,
+      "speed": 92
+    }
+  },
+  {
+    "id": "0670_b",
+    "name": "Floette",
+    "alt_name": "Mega Floette",
+    "types": ["Fairy"],
+    "stats": {
+      "total": 651,
+      "hp": 74,
+      "attack": 85,
+      "defense": 87,
+      "sp.atk": 155,
+      "sp.def": 148,
+      "speed": 102
+    }
+  },
+  {
     "id": "0671",
     "name": "Florges",
     "types": ["Fairy"],
