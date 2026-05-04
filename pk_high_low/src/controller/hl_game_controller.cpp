@@ -6,6 +6,9 @@
 
 #include <controller/game_mode.hpp>
 
+#include <models/pokedex.hpp>
+#include <models/pokedex_filter.hpp>
+
 using namespace aff::sdl_utils::common;
 using namespace aff::pk_high_low::controller;
 
@@ -35,6 +38,15 @@ void HLGameController::configure(const game_settings& settings)
 
     // Pokedex
     model_utils_.dex_ = hl_model_utils_t::dex_t::from_file(assets_path_ / "dex.json");
+
+    if (settings.pokedex != pokedex_mode::STANDARD) {
+        // TO DO: Implement filtering of pokedex based on settings.pokedex (e.g., GEN1_ONLY, VGC)
+        if (settings.pokedex == pokedex_mode::VGC) {
+            model_utils_.dex_ = models::pokedex_filter::filter_by_file(model_utils_.dex_, 
+                                                            assets_path_ / "champions_ma_dex_filter.json");
+        }
+
+    }    
 
     // RNG utils
     model_utils_.rng_utils_.rng = std::mt19937(std::random_device{}());
